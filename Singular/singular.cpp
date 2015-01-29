@@ -1,3 +1,21 @@
+/*
+ * Singular
+ * Copyright (C) 2015 Filipe Carvalho
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "singular.h"
 #include "ui_singular.h"
 
@@ -29,6 +47,10 @@ void Singular::load_connections()
 
 }
 
+/**
+ * @brief Singular::load_settings
+ *      Loads all the UI settings
+ */
 void Singular::load_settings()
 {
     ui->sw_cameras->removeWidget(ui->page);
@@ -56,6 +78,10 @@ void Singular::load_settings()
     ui->splitter_options->restoreState(SettingsManager::read("Window/SplitterOptions").toByteArray());
 }
 
+/**
+ * @brief Singular::save_settings
+ *      Saves all the UI settings
+ */
 void Singular::save_settings()
 {
     //Window
@@ -77,6 +103,18 @@ void Singular::save_settings()
     SettingsManager::write("Window/SplitterOptions", ui->splitter_options->saveState());
 }
 
+/*************************************************************************************/
+/*                                   SIGNAL/SLOTS                                    */
+/*************************************************************************************/
+
+/**
+ * @brief Singular::add_camera
+ *      Adds a new camera to the UI
+ * @param camera
+ *      The custom camera widget.
+ * @param camera_name
+ *      The name of the device.
+ */
 void Singular::add_camera(QWidget *camera, QString camera_name) const
 {
     ui->sw_cameras->setCurrentIndex(ui->sw_cameras->addWidget(camera));
@@ -85,6 +123,14 @@ void Singular::add_camera(QWidget *camera, QString camera_name) const
     ui->cb_cameras->setCurrentText(camera_name);
 }
 
+/**
+ * @brief Singular::add_microphone
+ *      Adds a new microphone to the UI.
+ * @param microphone
+ *      The custom microphone widget.
+ * @param microphone_name
+ *      The name of the device.
+ */
 void Singular::add_microphone(QWidget *microphone, QString microphone_name) const
 {
     ui->sw_microphones->setCurrentIndex(ui->sw_microphones->addWidget(microphone));
@@ -93,11 +139,23 @@ void Singular::add_microphone(QWidget *microphone, QString microphone_name) cons
     ui->cb_microphones->setCurrentText(microphone_name);
 }
 
+/**
+ * @brief Singular::on_cb_cameras_currentIndexChanged
+ *      Changes the current camera widget.
+ * @param index
+ *      Index of the camera.
+ */
 void Singular::on_cb_cameras_currentIndexChanged(int index)
 {
     ui->sw_cameras->setCurrentIndex(index);
 }
 
+/**
+ * @brief Singular::console
+ *      Slot used to output messages from any part of the code.
+ * @param message
+ *      HTML message to be printed.
+ */
 void Singular::console(const QString &message) const
 {
     ui->txt_console->appendHtml(message);

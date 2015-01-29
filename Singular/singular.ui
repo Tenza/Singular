@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Singular</class>
+ <widget class="QMainWindow" name="Singular">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>832</width>
+    <height>540</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Singular</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout_11">
+    <item row="0" column="0">
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QGroupBox" name="groupBox_sensors">
+       <property name="title">
+        <string>Sensors</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <widget class="QSplitter" name="splitter_sensors">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <widget class="QGroupBox" name="groupBox_sensors_cameras">
+           <property name="title">
+            <string>Cameras</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout">
+            <item row="1" column="0">
+             <widget class="QComboBox" name="cb_cameras"/>
+            </item>
+            <item row="0" column="0">
+             <widget class="QStackedWidget" name="sw_cameras">
+              <widget class="QWidget" name="page"/>
+              <widget class="QWidget" name="page_2"/>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QGroupBox" name="groupBox_sensors_audio">
+           <property name="title">
+            <string>Audio</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_9">
+            <item row="1" column="0">
+             <widget class="QComboBox" name="cb_microphones"/>
+            </item>
+            <item row="0" column="0">
+             <widget class="QStackedWidget" name="sw_microphones">
+              <widget class="QWidget" name="page_5"/>
+              <widget class="QWidget" name="page_6"/>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QGroupBox" name="groupBox_sensors_text">
+           <property name="title">
+            <string>Text</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="0" column="0">
+             <widget class="QPlainTextEdit" name="txt_input"/>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QGroupBox" name="groupBox_output">
+       <property name="title">
+        <string>Output</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="0" column="0">
+         <widget class="QSplitter" name="splitter_output">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <widget class="QGroupBox" name="groupBox_output_cameras">
+           <property name="title">
+            <string>Cameras</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_8">
+            <item row="0" column="0">
+             <widget class="QStackedWidget" name="sw_output_cameras">
+              <widget class="QWidget" name="page_3"/>
+              <widget class="QWidget" name="page_4"/>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QComboBox" name="cb_output_cameras"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QGroupBox" name="groupBox_output_audio">
+           <property name="title">
+            <string>Audio</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_10">
+            <item row="1" column="0">
+             <widget class="QComboBox" name="cb_output_microphones"/>
+            </item>
+            <item row="0" column="0">
+             <widget class="QStackedWidget" name="sw_output_microphones">
+              <widget class="QWidget" name="page_7"/>
+              <widget class="QWidget" name="page_8"/>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QGroupBox" name="groupBox_output_text">
+           <property name="title">
+            <string>Text</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_4">
+            <item row="0" column="0">
+             <widget class="QPlainTextEdit" name="txt_output"/>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QGroupBox" name="groupBox_options">
+       <property name="title">
+        <string>Options</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_7">
+        <item row="0" column="0">
+         <widget class="QSplitter" name="splitter_options">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <widget class="QGroupBox" name="groupBox_console">
+           <property name="title">
+            <string>Console</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_6">
+            <item row="0" column="0">
+             <widget class="QPlainTextEdit" name="txt_console"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QGroupBox" name="groupBox_features">
+           <property name="title">
+            <string>Features</string>
+           </property>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>
