@@ -144,9 +144,9 @@ double Helper::percentage(const double &number, const int &percentage)
 QString Helper::substring(const QString &text, const QString &start, const QString &end)
 {
     int id_index = text.indexOf(start) + start.size();
-    int id_lenght = text.indexOf(end, id_index) - id_index;
+    int id_length = text.indexOf(end, id_index) - id_index;
 
-    return text.mid(id_index, id_lenght);
+    return text.mid(id_index, id_length);
 }
 
 /**
