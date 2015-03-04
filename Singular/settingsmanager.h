@@ -20,10 +20,6 @@
 #define SETTINGSMANAGER_H
 
 #include <QSettings>
-#include <QCoreApplication>
-#include <QFile>
-#include <QTextStream>
-#include <QDateTime>
 
 /**
  * @brief The SettingsManager namespace

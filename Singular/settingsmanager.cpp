@@ -18,6 +18,11 @@
 
 #include "settingsmanager.h"
 
+#include <QFile>
+#include <QDateTime>
+#include <QTextStream>
+#include <QCoreApplication>
+
 /**
  *@brief Anonymous namespace
  *      This namespace is used as a "private section".
