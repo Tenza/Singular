@@ -17,7 +17,6 @@
 */
 
 #include "camerasurface.h"
-
 #include "output.h"
 
 /**
@@ -28,18 +27,37 @@
  * @param parent
  *      To parent this class and to use signals and slots.
  */
-CameraSurface::CameraSurface(const int new_id, QObject *parent)
+CameraSurface::CameraSurface(const int new_id, QCameraInfo new_camera_info, QObject *parent)
     : QAbstractVideoSurface(parent),
-      id(new_id)
-
+      id(new_id),
+      camera_info(new_camera_info)
 {
-    connect(this, SIGNAL(image_data(QImage, int)), parent, SLOT(image_data(QImage, int)));
+    connect(this, SIGNAL(image_data(int, QImage)), parent, SLOT(image_data(int, QImage)));
     connect(this, SIGNAL(console(const QString&)), parent, SIGNAL(console(const QString&)));
+
+    //Initializes the camera.
+    camera = new QCamera(camera_info, this);
+    connect(camera, SIGNAL(stateChanged(QCamera::State)), SLOT(stateChanged(QCamera::State)));
+
+    camera->setViewfinder(this);
+}
+
+/**
+ * @brief CameraSurface::start
+ *      Starts the camera interface.
+ */
+void CameraSurface::start()
+{
+    if(camera->error() == QCamera::NoError)
+    {
+        camera->start();
+    }
 }
 
 /**
  * @brief CameraSurface::start
  *      Starts the surface if the requested format is supported.
+ *      This function is called internally by the QCamera class.
  * @param format
  *      The format to start the frame.
  * @return
@@ -67,16 +85,19 @@ bool CameraSurface::start(const QVideoSurfaceFormat &format)
 /**
  * @brief CameraSurface::stop
  *      Stops the surface.
+ *      This function is called internally by the QCamera class.
  */
 void CameraSurface::stop()
 {
     output("Stopping video surface.", 1);
     QAbstractVideoSurface::stop();
+    camera->stop();
 }
 
 /**
  * @brief CameraSurface::present
  *      Present the current frame.
+ *      This function is called internally by the QCamera class.
  * @param frame
  *      The frame to be presented.
  * @return
@@ -98,9 +119,9 @@ bool CameraSurface::present(const QVideoFrame &frame)
                          clone_frame.height(),
                          QVideoFrame::imageFormatFromPixelFormat(clone_frame.pixelFormat()));
 
-            //Process image.
+            //Process image, if needed, before signal.
 
-            emit image_data(image, id);
+            emit image_data(id, image);
             clone_frame.unmap();
 
             result = true;
@@ -144,6 +165,7 @@ bool CameraSurface::isFormatSupported(const QVideoSurfaceFormat &format) const
 /**
  * @brief CameraSurface::supportedPixelFormats
  *      List of pixel formats the surface can paint.
+ *      This function is called internally by the QCamera class.
  * @param handleType
  *      We don't support rendering using any special frame handles.
  * @return
@@ -196,6 +218,28 @@ QList<QVideoFrame::PixelFormat> CameraSurface::supportedPixelFormats(QAbstractVi
     output("Returned supportedPixelFormats.", 1);
 
     return formats;
+}
+
+void CameraSurface::stateChanged(QCamera::State state)
+{
+    switch (state)
+    {
+        case QCamera::UnloadedState:
+        {
+            output("Camera device state: UnloadedState", 3);
+            break;
+        }
+        case QCamera::LoadedState:
+        {
+            output("Camera device state: LoadedState", 3);
+            break;
+        }
+        case QCamera::ActiveState:
+        {
+            output("Camera device state: ActiveState", 3);
+            break;
+        }
+    }
 }
 
 void CameraSurface::output(const QString &message, const int &verbose) const

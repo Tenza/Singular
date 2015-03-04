@@ -19,10 +19,8 @@
 #ifndef CAMERASURFACE_H
 #define CAMERASURFACE_H
 
-#include <QWidget>
-#include <QPainter>
-#include <QSize>
-
+#include <QCamera>
+#include <QCameraInfo>
 #include <QVideoFrame>
 #include <QVideoSurfaceFormat>
 #include <QAbstractVideoSurface>
@@ -34,12 +32,14 @@ class CameraSurface : public QAbstractVideoSurface
     Q_OBJECT
 
 public_construct:
-    explicit CameraSurface(const int new_id, QObject *parent = 0);
+    explicit CameraSurface(const int new_id, QCameraInfo new_camera_info, QObject *parent = 0);
 
 public_methods:
+    void start();
+
     bool start(const QVideoSurfaceFormat &format);
     void stop();
-    bool present(const QVideoFrame& frame);
+    bool present(const QVideoFrame &frame);
 
     bool isFormatSupported(const QVideoSurfaceFormat &format) const;
     QList<QVideoFrame::PixelFormat> supportedPixelFormats(QAbstractVideoBuffer::HandleType handleType = QAbstractVideoBuffer::NoHandle) const;
@@ -47,14 +47,19 @@ public_methods:
 private_methods:
     void output(const QString &message, const int &verbose) const;
 
-private_data_members:
+private_members:
     int id;
+
+private_data_members:
+    QCamera* camera;
+    QCameraInfo camera_info;
 
 signals:
     void console(const QString &message) const;
-    void image_data(const QImage new_frame, const int id);
+    void image_data(const int id, const QImage new_frame);
 
-public slots:
+private slots:
+    void stateChanged(QCamera::State state);
 
 };
 
