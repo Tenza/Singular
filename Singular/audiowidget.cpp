@@ -17,7 +17,6 @@
 */
 
 #include "audiowidget.h"
-
 #include "output.h"
 
 /**
@@ -30,7 +29,7 @@ AudioWidget::AudioWidget(QWidget *parent) :
     QWidget(parent)
 {
     connect(this, SIGNAL(console(const QString&)), parent, SIGNAL(console(const QString&)));
-    output("Audio device started.", 1);
+    output("Audio widget started.", 1);
 
     setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
@@ -46,7 +45,7 @@ AudioWidget::AudioWidget(QWidget *parent) :
  * @param level
  *      The new volume level from the surface.
  */
-void AudioWidget::set_level(double level)
+void AudioWidget::update_level(const int level)
 {
     this->level = level;
     update();
@@ -55,6 +54,7 @@ void AudioWidget::set_level(double level)
 /**
  * @brief AudioWidget::paintEvent
  *      Paints the widget with the volume set in the set_level function.
+ *      Level must be a number betwen 0 and 100. The calculations to fit the widget are on this scale.
  * @param event
  */
 void AudioWidget::paintEvent(QPaintEvent *event)
@@ -67,8 +67,10 @@ void AudioWidget::paintEvent(QPaintEvent *event)
 
     painter.drawRect(0, 0, painter.viewport().width() - 1, painter.viewport().height() - 1);
 
-    if (level > 0.0)
+    if (level > 0 && level < 100)
     {
+        // 100   - width
+        // level - X
         int volume = (level * painter.viewport().width() - 1) / 100;
 
         painter.fillRect(1, 1, volume, painter.viewport().height() - 2, Qt::red);

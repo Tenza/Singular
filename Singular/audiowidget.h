@@ -31,14 +31,14 @@ class AudioWidget : public QWidget
 public_construct:
     explicit AudioWidget(QWidget *parent = 0);
 
+public_methods:
+    void update_level(const int level);
+
 private_methods:
     void output(const QString &message, const int &verbose) const;
 
-public_methods:
-    void set_level(double level);
-
 private_members:
-    double level;
+    int level;
 
 protected_methods:
     void paintEvent(QPaintEvent *event);
