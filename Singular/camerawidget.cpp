@@ -17,8 +17,9 @@
 */
 
 #include "camerawidget.h"
-
 #include "output.h"
+
+#include <QResizeEvent>
 
 /**
  * @brief CameraWidget::CameraWidget

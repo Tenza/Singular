@@ -21,7 +21,6 @@
 
 #include <QWidget>
 #include <QPainter>
-#include <QResizeEvent>
 
 #include "defines.h"
 #include "camerasurface.h"
