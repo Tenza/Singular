@@ -40,7 +40,6 @@ public_construct:
 private_methods:
     void load_settings();
     void save_settings();
-    void load_connections();
 
 private_data_members:
     Ui::Singular *ui;
@@ -51,12 +50,12 @@ signals:
 
 public slots:
     void console(const QString &message) const;
-    void add_camera(QWidget *camera, QString camera_name) const;
+    void add_camera(const QString camera_name, QWidget *camera, const bool selected) const;
+    void add_microphone(const QString microphone_name, QWidget *microphone = 0, const bool selected = false) const;
 
-    void add_microphone(QWidget *microphone, QString microphone_name) const;
-
-private slots:  
+private slots:
     void on_cb_cameras_currentIndexChanged(int index);
+    void on_cb_microphones_currentIndexChanged(int index);
     void on_txt_input_textChanged();
 
 };

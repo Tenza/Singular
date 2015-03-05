@@ -18,11 +18,15 @@
 
 #include "singular.h"
 #include "ui_singular.h"
+#include "settingsmanager.h"
 
 #include <QDesktopWidget>
 
-#include "settingsmanager.h"
-
+/**
+ * @brief Singular::Singular
+ *      Starts the sensors and loads settings.
+ * @param parent
+ */
 Singular::Singular(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Singular)
@@ -31,20 +35,18 @@ Singular::Singular(QWidget *parent) :
 
     sensors = new Sensors(this);
 
-    load_connections();
     load_settings();
 }
 
+/**
+ * @brief Singular::~Singular
+ *      Saves the UI settings on exit.
+ */
 Singular::~Singular()
 {
     save_settings();
 
     delete ui;
-}
-
-void Singular::load_connections()
-{
-
 }
 
 /**
@@ -72,7 +74,6 @@ void Singular::load_settings()
     }
 
     ui->splitter->restoreState(SettingsManager::read("Window/Splitter").toByteArray());
-    //ui->splitter_main->restoreState(SettingsManager::read("Window/SplitterMain").toByteArray());
     ui->splitter_sensors->restoreState(SettingsManager::read("Window/SplitterSensors").toByteArray());
     ui->splitter_output->restoreState(SettingsManager::read("Window/SplitterOutput").toByteArray());
     ui->splitter_options->restoreState(SettingsManager::read("Window/SplitterOptions").toByteArray());
@@ -97,15 +98,10 @@ void Singular::save_settings()
     SettingsManager::write("Window/WindowMaximized", this->isMaximized());
 
     SettingsManager::write("Window/Splitter", ui->splitter->saveState());
-    //SettingsManager::write("Window/SplitterMain", ui->splitter_main->saveState());
     SettingsManager::write("Window/SplitterSensors", ui->splitter_sensors->saveState());
     SettingsManager::write("Window/SplitterOutput", ui->splitter_output->saveState());
     SettingsManager::write("Window/SplitterOptions", ui->splitter_options->saveState());
 }
-
-/*************************************************************************************/
-/*                                   SIGNAL/SLOTS                                    */
-/*************************************************************************************/
 
 /**
  * @brief Singular::add_camera
@@ -115,12 +111,21 @@ void Singular::save_settings()
  * @param camera_name
  *      The name of the device.
  */
-void Singular::add_camera(QWidget *camera, QString camera_name) const
+void Singular::add_camera(const QString camera_name, QWidget *camera, const bool selected) const
 {
-    ui->sw_cameras->setCurrentIndex(ui->sw_cameras->addWidget(camera));
-
+    int id = 0;
     ui->cb_cameras->addItem(camera_name);
-    ui->cb_cameras->setCurrentText(camera_name);
+
+    if(camera != 0)
+    {
+        id = ui->sw_cameras->addWidget(camera);
+    }
+
+    if(selected)
+    {
+        ui->sw_cameras->setCurrentIndex(id);
+        ui->cb_cameras->setCurrentText(camera_name);
+    }
 }
 
 /**
@@ -131,12 +136,21 @@ void Singular::add_camera(QWidget *camera, QString camera_name) const
  * @param microphone_name
  *      The name of the device.
  */
-void Singular::add_microphone(QWidget *microphone, QString microphone_name) const
+void Singular::add_microphone(const QString microphone_name, QWidget *microphone, const bool selected) const
 {
-    ui->sw_microphones->setCurrentIndex(ui->sw_microphones->addWidget(microphone));
-
+    int id = 0;
     ui->cb_microphones->addItem(microphone_name);
-    ui->cb_microphones->setCurrentText(microphone_name);
+
+    if(microphone != 0)
+    {
+        id = ui->sw_microphones->addWidget(microphone);
+    }
+
+    if(selected)
+    {
+        ui->sw_microphones->setCurrentIndex(id);
+        ui->cb_microphones->setCurrentText(microphone_name);
+    }
 }
 
 /**
@@ -150,6 +164,19 @@ void Singular::on_cb_cameras_currentIndexChanged(int index)
     ui->sw_cameras->setCurrentIndex(index);
 }
 
+void Singular::on_cb_microphones_currentIndexChanged(int index)
+{
+    if(sensors != NULL)
+    {
+        sensors->update_microphones(index);
+    }
+}
+
+void Singular::on_txt_input_textChanged()
+{
+    emit get_text(ui->txt_input->toPlainText());
+}
+
 /**
  * @brief Singular::console
  *      Slot used to output messages from any part of the code.
@@ -159,9 +186,4 @@ void Singular::on_cb_cameras_currentIndexChanged(int index)
 void Singular::console(const QString &message) const
 {
     ui->txt_console->appendHtml(message);
-}
-
-void Singular::on_txt_input_textChanged()
-{
-    emit get_text(ui->txt_input->toPlainText());
 }
