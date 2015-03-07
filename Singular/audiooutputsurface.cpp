@@ -25,8 +25,8 @@ AudioOutputSurface::AudioOutputSurface(const int new_id, const QAudioDeviceInfo 
       device_info(new_device_info),
       device_format(new_device_format)
 {
-    connect(this, SIGNAL(console(const QString&)), parent, SIGNAL(console(const QString&)));
-    connect(this, SIGNAL(speakers_data(const int)), parent, SLOT(speakers_data(const int)));
+    connect(this, SIGNAL(console(QString)), parent, SIGNAL(console(QString)));
+    connect(this, SIGNAL(speakers_data(int)), parent, SLOT(speakers_data(int)));
 
     if (!device_info.isFormatSupported(device_format))
     {
@@ -35,7 +35,7 @@ AudioOutputSurface::AudioOutputSurface(const int new_id, const QAudioDeviceInfo 
     }
 
     audio_output = new QAudioOutput(device_info, device_format, this);
-    connect(audio_output, SIGNAL(notify()), SLOT(notified()));
+    connect(audio_output, SIGNAL(notify()), SLOT(notify()));
     connect(audio_output, SIGNAL(stateChanged(QAudio::State)), SLOT(stateChanged(QAudio::State)));
 
 }
@@ -47,11 +47,13 @@ AudioOutputSurface::~AudioOutputSurface()
 
 void AudioOutputSurface::start()
 {
-    open(QIODevice::ReadOnly);
+    open(QIODevice::ReadOnly | QIODevice::Truncate);
+    audio_output->start(this);
 }
 
 void AudioOutputSurface::stop()
 {
+    audio_output->stop();
     close();
 }
 
@@ -71,7 +73,7 @@ qint64 AudioOutputSurface::writeData(const char *data, qint64 maxSize)
     return 0;
 }
 
-void AudioOutputSurface::notified()
+void AudioOutputSurface::notify()
 {
     output("Bytes free: " + QString::number(audio_output->bytesFree()), 3);
     output("Elapsed microseconds: " + QString::number(audio_output->elapsedUSecs()), 3);
@@ -98,11 +100,8 @@ void AudioOutputSurface::stateChanged(QAudio::State state)
 
             if (audio_output->error() != QAudio::NoError)
             {
-                // Error handling
-            }
-            else
-            {
-                // Finished recording
+                output("Audio-out device error, stopping audio.", 1);
+                stop();
             }
             break;
         }
@@ -114,7 +113,7 @@ void AudioOutputSurface::stateChanged(QAudio::State state)
     }
 }
 
-void AudioOutputSurface::output(const QString &message, const int &verbose) const
+void AudioOutputSurface::output(const QString &message, const int verbose) const
 {
     if(Output::get_verbose() >= verbose)
     {
