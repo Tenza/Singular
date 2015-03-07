@@ -27,15 +27,15 @@
  *      Connects the data from the sensors to the widgets.
  *      Starts all the available sensors.
  * @param parent
- *      To parent this class and to use signals and slots.
+ *      Parent this class and to use signals and slots.
  */
 Sensors::Sensors(QWidget *parent) :
     QWidget(parent)
 {
-    connect(this, SIGNAL(add_camera(const QString, QWidget*, const bool)), parent, SLOT(add_camera(const QString, QWidget*, const bool)));
-    connect(this, SIGNAL(add_microphone(const QString, QWidget*, const bool)), parent, SLOT(add_microphone(const QString, QWidget*, const bool)));
-    connect(this, SIGNAL(console(const QString&)), parent, SLOT(console(const QString&)));
-    connect(parent, SIGNAL(get_text(const QString&)), this, SIGNAL(get_text(const QString&)));
+    connect(this, SIGNAL(add_camera(QString, QWidget*, bool)), parent, SLOT(add_camera(QString, QWidget*, bool)));
+    connect(this, SIGNAL(add_microphone(QString, QWidget*, bool)), parent, SLOT(add_microphone(QString, QWidget*, bool)));
+    connect(this, SIGNAL(console(QString)), parent, SLOT(console(QString)));
+    connect(parent, SIGNAL(get_text(QString)), this, SIGNAL(get_text(QString)));
 
     start_cameras();
     start_textstream();
@@ -76,18 +76,21 @@ void Sensors::start_cameras()
  * @brief Sensors::image_data
  *      Get image data from the image sensors.
  *      Updates the widget and sends the data to the network.
+ * @param id
+ *      ID of the surface, this is needed to update the correct camerawidget.
  * @param new_frame
  *      The new frame.
- * @param id
- *      Id of the surface, this is needed to update the correct camerawidget.
  */
-void Sensors::image_data(const int id, const QImage new_frame)
+void Sensors::image_data(const int id, const QImage new_frame) const
 {
     camera_widgets.at(id)->update_frame(new_frame);
 }
 
 /**
  * @brief Sensors::start_microphones
+ *      Initializes only the default microphone and one widget.
+ *      Although this is a QList only a single device will be active, probably change this in the future.
+ *      Adds the camera widget to the UI.
  */
 void Sensors::start_microphones()
 { 
@@ -111,6 +114,11 @@ void Sensors::start_microphones()
     }
 }
 
+/**
+ * @brief Sensors::update_microphones
+ *      Since we only have one device initialized at any given moment, this method will remove the current and create the new device.
+ * @param id
+ */
 void Sensors::update_microphones(const int id)
 {
     QList<QAudioDeviceInfo> audio_input_info = QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
@@ -125,11 +133,16 @@ void Sensors::update_microphones(const int id)
 
 /**
  * @brief Sensors::microphone_data
+ *      Recives the data from the sensors.
+ *      Updates the widget and sends the data to the network.
  * @param id
+ *      ID of the surface, this is needed to update the correct audiowidget.
  * @param level
+ *      Level to display the audio volume.
  */
-void Sensors::microphone_data(const int id, const int level)
-{            
+void Sensors::microphone_data(const int id, const char *data, const int level) const
+{
+    Q_UNUSED(data);
     audio_input_widgets.at(id)->update_level(level);
 }
 
@@ -151,7 +164,7 @@ void Sensors::start_speakers()
     }
 }
 
-void Sensors::speakers_data(const int id, const int level)
+void Sensors::speakers_data(const int id, const int level) const
 {
     Q_UNUSED(id);
     Q_UNUSED(level);

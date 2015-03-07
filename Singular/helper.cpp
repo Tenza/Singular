@@ -95,13 +95,13 @@ void Helper::parse_json_array(const QJsonArray &array, const QStringList &keys, 
  * @remarks WARNING
  *      On windows, making the operation on a single step produces wrong results, THIS IS CRITICAL.
  */
-int Helper::price_converter(const double &price)
+int Helper::price_converter(const double price)
 {
     double convert = price * 100.0;
     return static_cast<int>(convert);
 }
 
-double Helper::price_converter(const int &price)
+double Helper::price_converter(const int price)
 {
     double convert = static_cast<double>(price) / 100.0;
     return convert;
@@ -117,13 +117,13 @@ double Helper::price_converter(const int &price)
  * @return
  *      The percentage of 'number'.
  */
-int Helper::percentage(const int &number, const int &percentage)
+int Helper::percentage(const int number, const int percentage)
 {
     double percent = round((static_cast<double>(percentage) * static_cast<double>(number)) / 100.0);
     return static_cast<int>(percent);
 }
 
-double Helper::percentage(const double &number, const int &percentage)
+double Helper::percentage(const double number, const int percentage)
 {
     double percent = (static_cast<double>(percentage) * number) / 100.0;
     return percent;
@@ -157,7 +157,7 @@ QString Helper::substring(const QString &text, const QString &start, const QStri
  * @return
  *      The string.
  */
-QString Helper::random_string(const int &length)
+QString Helper::random_string(const int length)
 {
     QString result;
     const QString possible_characters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
@@ -182,7 +182,7 @@ QString Helper::random_string(const int &length)
  * @return
  *      The number
  */
-int Helper::random_number(const int &low, const int &high)
+int Helper::random_number(const int low, const int high)
 {
     return qrand() % ((high + 1) - low) + low;
 }

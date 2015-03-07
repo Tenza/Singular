@@ -39,24 +39,24 @@ public_construct:
 
 private_methods:
     void load_settings();
-    void save_settings();
+    void save_settings() const;
 
 private_data_members:
     Ui::Singular *ui;
     Sensors *sensors;
 
-signals:
-    void get_text(const QString &message) const;
-
 public slots:
     void console(const QString &message) const;
-    void add_camera(const QString camera_name, QWidget *camera, const bool selected) const;
-    void add_microphone(const QString microphone_name, QWidget *microphone = 0, const bool selected = false) const;
+    void add_camera(const QString &camera_name, QWidget *camera = 0, const bool selected = false) const;
+    void add_microphone(const QString &microphone_name, QWidget *microphone = 0, const bool selected = false) const;
 
 private slots:
     void on_cb_cameras_currentIndexChanged(int index);
     void on_cb_microphones_currentIndexChanged(int index);
     void on_txt_input_textChanged();
+
+signals:
+    void get_text(const QString &message) const;
 
 };
 

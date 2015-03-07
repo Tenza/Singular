@@ -55,16 +55,16 @@ private_data_members:
 
     TextStream* text;
 
+public slots:
+    void image_data(const int id, const QImage new_frame) const;
+    void microphone_data(const int id, const char *data, const int level) const;
+    void speakers_data(const int id, const int level) const;
+
 signals:
     void console(const QString &message) const;
-    void add_camera(const QString camera_name, QWidget *camera = 0, const bool selected = false) const;
-    void add_microphone(const QString microphone_name, QWidget *microphone = 0, const bool selected = false) const;
+    void add_camera(const QString &camera_name, QWidget *camera = 0, const bool selected = false) const;
+    void add_microphone(const QString &microphone_name, QWidget *microphone = 0, const bool selected = false) const;
     void get_text(const QString &message) const;
-
-public slots:
-    void image_data(const int id, const QImage new_frame);
-    void microphone_data(const int id, const int level);
-    void speakers_data(const int id, const int level);
 
 };
 

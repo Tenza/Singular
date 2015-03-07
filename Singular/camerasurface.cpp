@@ -33,7 +33,7 @@ CameraSurface::CameraSurface(const int new_id, QCameraInfo new_camera_info, QObj
       camera_info(new_camera_info)
 {
     connect(this, SIGNAL(image_data(int, QImage)), parent, SLOT(image_data(int, QImage)));
-    connect(this, SIGNAL(console(const QString&)), parent, SIGNAL(console(const QString&)));
+    connect(this, SIGNAL(console(QString)), parent, SIGNAL(console(QString)));
 
     //Initializes the camera.
     camera = new QCamera(camera_info, this);
@@ -46,7 +46,7 @@ CameraSurface::CameraSurface(const int new_id, QCameraInfo new_camera_info, QObj
  * @brief CameraSurface::start
  *      Starts the camera interface.
  */
-void CameraSurface::start()
+void CameraSurface::start() const
 {
     if(camera->error() == QCamera::NoError)
     {
@@ -220,6 +220,12 @@ QList<QVideoFrame::PixelFormat> CameraSurface::supportedPixelFormats(QAbstractVi
     return formats;
 }
 
+/**
+ * @brief AudioInputSurface::stateChanged
+ *      Signal that displays the current state of the device.
+ * @param state
+ *      Current state of the device.
+ */
 void CameraSurface::stateChanged(QCamera::State state)
 {
     switch (state)
@@ -242,7 +248,11 @@ void CameraSurface::stateChanged(QCamera::State state)
     }
 }
 
-void CameraSurface::output(const QString &message, const int &verbose) const
+/**
+ * @brief TextStream::output
+ *      Generic function responsible for all the outputs.
+ */
+void CameraSurface::output(const QString &message, const int verbose) const
 {
     if(Output::get_verbose() >= verbose)
     {

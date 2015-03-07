@@ -35,7 +35,7 @@ public_construct:
     explicit CameraSurface(const int new_id, QCameraInfo new_camera_info, QObject *parent = 0);
 
 public_methods:
-    void start();
+    void start() const;
 
     bool start(const QVideoSurfaceFormat &format);
     void stop();
@@ -45,7 +45,7 @@ public_methods:
     QList<QVideoFrame::PixelFormat> supportedPixelFormats(QAbstractVideoBuffer::HandleType handleType = QAbstractVideoBuffer::NoHandle) const;
 
 private_methods:
-    void output(const QString &message, const int &verbose) const;
+    void output(const QString &message, const int verbose) const;
 
 private_members:
     int id;
@@ -54,12 +54,12 @@ private_data_members:
     QCamera* camera;
     QCameraInfo camera_info;
 
-signals:
-    void console(const QString &message) const;
-    void image_data(const int id, const QImage new_frame);
-
 private slots:
     void stateChanged(QCamera::State state);
+
+signals:
+    void console(const QString &message) const;
+    void image_data(const int id, const QImage new_frame) const;
 
 };
 

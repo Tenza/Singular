@@ -40,15 +40,15 @@ namespace Helper
     void parse_json_object(const QJsonObject &object, const QStringList &keys, QVariantHash &listings);
     void parse_json_array(const QJsonArray &array, const QStringList &keys, QVariantHash &listings);
 
-    int price_converter(const double &price);
-    double price_converter(const int &price);
+    int price_converter(const double price);
+    double price_converter(const int price);
 
-    int percentage(const int &number, const int &percentage);
-    double percentage(const double &number, const int &percentage);
+    int percentage(const int number, const int percentage);
+    double percentage(const double number, const int percentage);
 
     QString substring(const QString &text, const QString &start, const QString &end);
-    QString random_string(const int &length);
-    int random_number(const int &low, const int &high);
+    QString random_string(const int length);
+    int random_number(const int low, const int high);
 
     QString get_thread_id();
     QNetworkProxy::ProxyType proxy_type(const QString &type);

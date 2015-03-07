@@ -26,6 +26,7 @@
  * @brief Singular::Singular
  *      Starts the sensors and loads settings.
  * @param parent
+ *      Parent this class and to use signals and slots.
  */
 Singular::Singular(QWidget *parent) :
     QMainWindow(parent),
@@ -51,7 +52,7 @@ Singular::~Singular()
 
 /**
  * @brief Singular::load_settings
- *      Loads all the UI settings
+ *      Loads all the UI settings, position, size and splitters state.
  */
 void Singular::load_settings()
 {
@@ -81,9 +82,9 @@ void Singular::load_settings()
 
 /**
  * @brief Singular::save_settings
- *      Saves all the UI settings
+ *      Saves all the UI settings, position, size and splitters state.
  */
-void Singular::save_settings()
+void Singular::save_settings() const
 {
     //Window
 
@@ -104,14 +105,27 @@ void Singular::save_settings()
 }
 
 /**
- * @brief Singular::add_camera
- *      Adds a new camera to the UI
- * @param camera
- *      The custom camera widget.
- * @param camera_name
- *      The name of the device.
+ * @brief Singular::console
+ *      Slot used to output messages from any part of the code.
+ * @param message
+ *      HTML message to be printed.
  */
-void Singular::add_camera(const QString camera_name, QWidget *camera, const bool selected) const
+void Singular::console(const QString &message) const
+{
+    ui->txt_console->appendHtml(message);
+}
+
+/**
+ * @brief Singular::add_camera
+ *      Adds a new entry or camera widget to the UI.
+ * @param camera_name
+ *      Name of the device.
+ * @param camera
+ *      The custom widget.
+ * @param selected
+ *      Auto-select this widget.
+ */
+void Singular::add_camera(const QString &camera_name, QWidget *camera, const bool selected) const
 {
     int id = 0;
     ui->cb_cameras->addItem(camera_name);
@@ -130,13 +144,15 @@ void Singular::add_camera(const QString camera_name, QWidget *camera, const bool
 
 /**
  * @brief Singular::add_microphone
- *      Adds a new microphone to the UI.
- * @param microphone
- *      The custom microphone widget.
+ *      Adds a new entry or microphone widget to the UI.
  * @param microphone_name
- *      The name of the device.
+ *      Name of the device.
+ * @param microphone
+ *      The custom widget.
+ * @param selected
+ *      Auto-select this widget.
  */
-void Singular::add_microphone(const QString microphone_name, QWidget *microphone, const bool selected) const
+void Singular::add_microphone(const QString &microphone_name, QWidget *microphone, const bool selected) const
 {
     int id = 0;
     ui->cb_microphones->addItem(microphone_name);
@@ -164,6 +180,13 @@ void Singular::on_cb_cameras_currentIndexChanged(int index)
     ui->sw_cameras->setCurrentIndex(index);
 }
 
+/**
+ * @brief Singular::on_cb_microphones_currentIndexChanged
+ *      Invokes updates to the microphone class.
+ *      It only has one widget, so there is no need to change its index.
+ * @param index
+ *      Index of the microphone.
+ */
 void Singular::on_cb_microphones_currentIndexChanged(int index)
 {
     if(sensors != NULL)
@@ -172,18 +195,11 @@ void Singular::on_cb_microphones_currentIndexChanged(int index)
     }
 }
 
+/**
+ * @brief Singular::on_txt_input_textChanged
+ *      This is the only slot that send data directly to the sensors.
+ */
 void Singular::on_txt_input_textChanged()
 {
     emit get_text(ui->txt_input->toPlainText());
-}
-
-/**
- * @brief Singular::console
- *      Slot used to output messages from any part of the code.
- * @param message
- *      HTML message to be printed.
- */
-void Singular::console(const QString &message) const
-{
-    ui->txt_console->appendHtml(message);
 }

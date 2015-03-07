@@ -23,11 +23,16 @@
 
 #define use_timer false
 
+/**
+ * @brief TextStream::TextStream
+ *      This class is probably useless because I dont think I will use the timer.
+ * @param parent
+ */
 TextStream::TextStream(QObject *parent) :
     QObject(parent)
 {
-    connect(this, SIGNAL(console(const QString&)), parent, SIGNAL(console(const QString&)));
-    connect(parent, SIGNAL(get_text(const QString&)), this, SLOT(get_text(const QString&)));
+    connect(this, SIGNAL(console(QString)), parent, SIGNAL(console(QString)));
+    connect(parent, SIGNAL(get_text(QString)), this, SLOT(get_text(QString)));
 
     if(use_timer)
     {
@@ -38,12 +43,22 @@ TextStream::TextStream(QObject *parent) :
     }
 }
 
+/**
+ * @brief TextStream::get_text
+ *      Outputs a message from the UI.
+ *      Either called from a signal or the timer.
+ * @param message
+ */
 void TextStream::get_text(const QString &message) const
 {
     output("Text Stream: " + message, 1);
 }
 
-void TextStream::output(const QString &message, const int &verbose) const
+/**
+ * @brief TextStream::output
+ *      Generic function responsible for all the outputs.
+ */
+void TextStream::output(const QString &message, const int verbose) const
 {
     if(Output::get_verbose() >= verbose)
     {

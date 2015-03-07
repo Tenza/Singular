@@ -31,13 +31,13 @@ public_construct:
     explicit TextStream(QObject *parent = 0);
 
 private_methods:
-    void output(const QString &message, const int &verbose) const;
-
-signals:
-    void console(const QString &message) const;
+    void output(const QString &message, const int verbose) const;
 
 public slots:
     void get_text(const QString &message = "") const;
+
+signals:
+    void console(const QString &message) const;
 
 };
 
