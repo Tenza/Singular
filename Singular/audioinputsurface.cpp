@@ -23,9 +23,7 @@
 
 /**
  * @brief AudioInputSurface::AudioInputSurface
- *      I will use the hardware prefered format instead of setting the device settings manually.
- *      We should give a option to inicialize with manual settings, if not use the default ones.
- *      Will this class be destoyed with changing devices?
+ *      This starts the audioinput info and format with the settings passed by the parent.
  * @param parent
  */
 AudioInputSurface::AudioInputSurface(const int new_id, const QAudioDeviceInfo new_device_info, const QAudioFormat new_device_format, QObject *parent)
@@ -34,8 +32,8 @@ AudioInputSurface::AudioInputSurface(const int new_id, const QAudioDeviceInfo ne
       device_info(new_device_info),
       device_format(new_device_format)
 {
-    connect(this, SIGNAL(console(const QString&)), parent, SIGNAL(console(const QString&)));
-    connect(this, SIGNAL(microphone_data(const int, const int)), parent, SLOT(microphone_data(const int, const int)));
+    connect(this, SIGNAL(console(QString)), parent, SIGNAL(console(QString)));
+    connect(this, SIGNAL(microphone_data(int, const char*, int)), parent, SLOT(microphone_data(int, const char*, int)));
 
 //    Automatic device settings
 //    device_info = QAudioDeviceInfo::defaultInputDevice();
@@ -56,7 +54,7 @@ AudioInputSurface::AudioInputSurface(const int new_id, const QAudioDeviceInfo ne
     }
 
     audio_input = new QAudioInput(device_info, device_format, this);
-    connect(audio_input, SIGNAL(notify()), SLOT(notified()));
+    connect(audio_input, SIGNAL(notify()), SLOT(notify()));
     connect(audio_input, SIGNAL(stateChanged(QAudio::State)), SLOT(stateChanged(QAudio::State)));
 
     set_amplitude();
@@ -68,6 +66,123 @@ AudioInputSurface::AudioInputSurface(const int new_id, const QAudioDeviceInfo ne
 AudioInputSurface::~AudioInputSurface()
 {
 
+}
+
+/**
+ * @brief AudioInputSurface::start
+ *      Opens this device and starts the audio.
+ */
+void AudioInputSurface::start()
+{
+    open(QIODevice::WriteOnly | QIODevice::Truncate);
+    audio_input->start(this);
+}
+
+/**
+ * @brief AudioInputSurface::stop
+ *      Stops the audio and closes this device.
+ */
+void AudioInputSurface::stop()
+{
+    audio_input->stop();
+    close();
+}
+
+/**
+ * @brief AudioInputSurface::readData
+ *      This is a microphone device, so there is no need to implement a read function.
+ * @param data
+ * @param maxSize
+ * @return
+ */
+qint64 AudioInputSurface::readData(char *data, qint64 maxSize)
+{
+    Q_UNUSED(data)
+    Q_UNUSED(maxSize)
+
+    return 0;
+}
+
+/**
+ * @brief AudioInputSurface::writeData
+ *      Receives the data from the device, consumes the data by looping all the samples independently and
+ *      converts it to a unsigned type, independently for the device preferences.
+ * @param data
+ *      RAW data from the audio-in analog signal.
+ * @param maxSize
+ *      Size of the data.
+ * @remarks
+ *      Sample = Single point in a analog signal.
+ *      Sample size = Commonly called bit depth, is the resolution of each sample. 16-bit digital audio means 16bit or 2bytes worth of data.
+ *      Channel numbers = Self explanatory. But keep in mind that this number multiplies with the sample size to get the total size.
+ *      Amplitude = Maximum possible value.
+ * @return
+ */
+qint64 AudioInputSurface::writeData(const char *data, qint64 maxSize)
+{
+    if (audio_peak_amplitude)
+    {
+        quint16 max_value = 0;
+
+        const int sample_bytes = device_format.sampleSize() / 8;
+        const int channel_bytes = device_format.channelCount() * sample_bytes;        
+        const int total_samples = maxSize / channel_bytes;
+
+        const unsigned char *data_ptr = reinterpret_cast<const unsigned char *>(data);
+
+        //const char *data_copy = 0;
+        //memcpy(&data_ptr, &data_copy, maxSize);
+
+        //Loops all the data, split by total size and number of channels.
+        for (int i = 0; i < total_samples; ++i)
+        {
+            for (int j = 0; j < device_format.channelCount(); ++j)
+            {
+                quint16 value = 0;
+
+                if (device_format.sampleSize() == 8 && device_format.sampleType() == QAudioFormat::UnSignedInt)
+                {
+                    value = *reinterpret_cast<const quint8*>(data_ptr);
+                }
+                else if (device_format.sampleSize() == 8 && device_format.sampleType() == QAudioFormat::SignedInt)
+                {
+                    value = qAbs(*reinterpret_cast<const qint8*>(data_ptr));
+                }
+                else if (device_format.sampleSize() == 16 && device_format.sampleType() == QAudioFormat::UnSignedInt)
+                {
+                    if (device_format.byteOrder() == QAudioFormat::LittleEndian)
+                    {
+                        value = qFromLittleEndian<quint16>(data_ptr);
+                    }
+                    else
+                    {
+                        value = qFromBigEndian<quint16>(data_ptr);
+                    }
+                }
+                else if (device_format.sampleSize() == 16 && device_format.sampleType() == QAudioFormat::SignedInt)
+                {
+                    if (device_format.byteOrder() == QAudioFormat::LittleEndian)
+                    {
+                        value = qAbs(qFromLittleEndian<qint16>(data_ptr));
+                    }
+                    else
+                    {
+                        value = qAbs(qFromBigEndian<qint16>(data_ptr));
+                    }
+                }
+
+                max_value = qMax(value, max_value);
+                data_ptr += sample_bytes;
+            }
+        }
+
+        max_value = qMin(max_value, audio_peak_amplitude);
+        max_value = (max_value * 100) / audio_peak_amplitude; // 100 - peak | X - value
+
+        emit microphone_data(id, data, max_value);
+    }
+
+    return maxSize;
 }
 
 /**
@@ -128,123 +243,10 @@ void AudioInputSurface::set_amplitude()
 }
 
 /**
- * @brief AudioInputSurface::start
- *      Opens the device.
- */
-void AudioInputSurface::start()
-{
-    open(QIODevice::WriteOnly | QIODevice::Truncate);
-    audio_input->start(this);
-}
-
-/**
- * @brief AudioInputSurface::stop
- *      Stops the device.
- */
-void AudioInputSurface::stop()
-{
-    audio_input->stop();
-    close();
-}
-
-/**
- * @brief AudioInputSurface::readData
- *      This is a microphone device, so there is no need to implement a read function.
- * @param data
- * @param maxSize
- * @return
- */
-qint64 AudioInputSurface::readData(char *data, qint64 maxSize)
-{
-    Q_UNUSED(data)
-    Q_UNUSED(maxSize)
-
-    return 0;
-}
-
-/**
- * @brief AudioInputSurface::writeData
- *      Receives the data from the device, consumes the data by looping all the samples independently and
- *
- * converts it to a unsigned type, independently for the device preferences.
- *
- *      Sample = Single point in a analog signal.
- *      Sample size = Commonly called bit depth, is the resolution of each sample. 16-bit digital audio means 16bit or 2bytes worth of data.
- *      Channel numbers = Self explanatory. But keep in mind that this number multiplies with the sample size to get the total size.
- *      Amplitude = Maximum possible value.
- * @param data
- * @param maxSize
- * @return
- */
-qint64 AudioInputSurface::writeData(const char *data, qint64 maxSize)
-{
-    if (audio_peak_amplitude)
-    {
-        quint16 max_value = 0;
-
-        const int sample_bytes = device_format.sampleSize() / 8;
-        const int channel_bytes = device_format.channelCount() * sample_bytes;        
-        const int total_samples = maxSize / channel_bytes;
-
-        const unsigned char *data_ptr = reinterpret_cast<const unsigned char *>(data);
-
-        //Loops all the data, split by total size and number of channels.
-        for (int i = 0; i < total_samples; ++i)
-        {
-            for (int j = 0; j < device_format.channelCount(); ++j)
-            {
-                quint16 value = 0;
-
-                if (device_format.sampleSize() == 8 && device_format.sampleType() == QAudioFormat::UnSignedInt)
-                {
-                    value = *reinterpret_cast<const quint8*>(data_ptr);
-                }
-                else if (device_format.sampleSize() == 8 && device_format.sampleType() == QAudioFormat::SignedInt)
-                {
-                    value = qAbs(*reinterpret_cast<const qint8*>(data_ptr));
-                }
-                else if (device_format.sampleSize() == 16 && device_format.sampleType() == QAudioFormat::UnSignedInt)
-                {
-                    if (device_format.byteOrder() == QAudioFormat::LittleEndian)
-                    {
-                        value = qFromLittleEndian<quint16>(data_ptr);
-                    }
-                    else
-                    {
-                        value = qFromBigEndian<quint16>(data_ptr);
-                    }
-                }
-                else if (device_format.sampleSize() == 16 && device_format.sampleType() == QAudioFormat::SignedInt)
-                {
-                    if (device_format.byteOrder() == QAudioFormat::LittleEndian)
-                    {
-                        value = qAbs(qFromLittleEndian<qint16>(data_ptr));
-                    }
-                    else
-                    {
-                        value = qAbs(qFromBigEndian<qint16>(data_ptr));
-                    }
-                }
-
-                max_value = qMax(value, max_value);
-                data_ptr += sample_bytes;
-            }
-        }
-
-        max_value = qMin(max_value, audio_peak_amplitude);
-        max_value = (max_value * 100) / audio_peak_amplitude; // 100 - peak | X - value
-
-        emit microphone_data(id, max_value);
-    }
-
-    return maxSize;
-}
-
-/**
  * @brief AudioInputSurface::device_print
  *      Prints all the device current settings.
  */
-void AudioInputSurface::device_print()
+void AudioInputSurface::device_print() const
 {
     output("Device: " + device_info.deviceName(), 3);
 
@@ -287,13 +289,23 @@ void AudioInputSurface::device_print()
     }
 }
 
-void AudioInputSurface::notified()
+/**
+ * @brief AudioInputSurface::notified
+ *      Signal from the audio input thar shows the read data.
+ */
+void AudioInputSurface::notify()
 {
     output("Bytes ready: " + QString::number(audio_input->bytesReady()), 3);
     output("Elapsed microseconds: " + QString::number(audio_input->elapsedUSecs()), 3);
     output("Processed microseconds: " + QString::number(audio_input->processedUSecs()), 3);
 }
 
+/**
+ * @brief AudioInputSurface::stateChanged
+ *      Signal that displays the current state of the device.
+ * @param state
+ *      Current state of the device.
+ */
 void AudioInputSurface::stateChanged(QAudio::State state)
 {
     switch (state)
@@ -314,11 +326,8 @@ void AudioInputSurface::stateChanged(QAudio::State state)
 
             if (audio_input->error() != QAudio::NoError)
             {
-                // Error handling
-            }
-            else
-            {
-                // Finished recording
+                output("Audio-in device error, stopping audio.", 1);
+                stop();
             }
             break;
         }
@@ -330,7 +339,11 @@ void AudioInputSurface::stateChanged(QAudio::State state)
     }
 }
 
-void AudioInputSurface::output(const QString &message, const int &verbose) const
+/**
+ * @brief TextStream::output
+ *      Generic function responsible for all the outputs.
+ */
+void AudioInputSurface::output(const QString &message, const int verbose) const
 {
     if(Output::get_verbose() >= verbose)
     {

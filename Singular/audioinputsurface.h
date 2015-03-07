@@ -43,9 +43,9 @@ protected_methods:
     qint64 writeData(const char *data, qint64 maxSize);
 
 private_methods:
-    void output(const QString &message, const int &verbose) const;
     void set_amplitude();
-    void device_print();
+    void device_print() const;
+    void output(const QString &message, const int verbose) const;
 
 private_members:
     int id;
@@ -56,13 +56,13 @@ private_data_members:
     QAudioDeviceInfo device_info;
     QAudioFormat device_format;
 
+private slots:
+    void notify();
+    void stateChanged(QAudio::State state);
+
 signals:
     void console(const QString &message) const;
-    void microphone_data(const int id, const int level);
-
-private slots:
-    void notified();
-    void stateChanged(QAudio::State state);
+    void microphone_data(const int id, const char *data, const int level) const;
 
 };
 
