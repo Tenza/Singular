@@ -28,7 +28,7 @@
 AudioWidget::AudioWidget(QWidget *parent) :
     QWidget(parent)
 {
-    connect(this, SIGNAL(console(const QString&)), parent, SIGNAL(console(const QString&)));
+    connect(this, SIGNAL(console(QString)), parent, SIGNAL(console(QString)));
     output("Audio widget started.", 1);
 
     setBackgroundRole(QPalette::Base);
@@ -77,7 +77,11 @@ void AudioWidget::paintEvent(QPaintEvent *event)
     }
 }
 
-void AudioWidget::output(const QString &message, const int &verbose) const
+/**
+ * @brief TextStream::output
+ *      Generic function responsible for all the outputs.
+ */
+void AudioWidget::output(const QString &message, const int verbose) const
 {
     if(Output::get_verbose() >= verbose)
     {

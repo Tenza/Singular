@@ -32,20 +32,20 @@ class CameraWidget : public QWidget
 public_construct:
     explicit CameraWidget(QWidget *parent = 0);
 
-private_data_members:
-    QImage frame;
-
-private_methods:
-    void output(const QString &message, const int &verbose) const;
+public_methods:
+    void update_frame(const QImage new_frame);
 
 protected_methods:
     void paintEvent(QPaintEvent *event);
 
+private_methods:
+    void output(const QString &message, const int verbose) const;
+
+private_data_members:
+    QImage frame;
+
 signals:
     void console(const QString &message) const;
-
-public slots:
-    void update_frame(const QImage new_frame);
 
 };
 

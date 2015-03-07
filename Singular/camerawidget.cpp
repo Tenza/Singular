@@ -30,7 +30,7 @@
 CameraWidget::CameraWidget(QWidget *parent) :
     QWidget(parent)
 {
-    connect(this, SIGNAL(console(const QString&)), parent, SIGNAL(console(const QString&)));
+    connect(this, SIGNAL(console(QString)), parent, SIGNAL(console(QString)));
     output("Camera widget started.", 1);
 }
 
@@ -65,7 +65,7 @@ void CameraWidget::paintEvent(QPaintEvent *event)
     painter.drawRect(0, 0, frame.width(), frame.height());
 }
 
-void CameraWidget::output(const QString &message, const int &verbose) const
+void CameraWidget::output(const QString &message, const int verbose) const
 {
     if(Output::get_verbose() >= verbose)
     {

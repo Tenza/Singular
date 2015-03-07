@@ -34,19 +34,17 @@ public_construct:
 public_methods:
     void update_level(const int level);
 
+protected_methods:
+    void paintEvent(QPaintEvent *event);
+
 private_methods:
-    void output(const QString &message, const int &verbose) const;
+    void output(const QString &message, const int verbose) const;
 
 private_members:
     int level;
 
-protected_methods:
-    void paintEvent(QPaintEvent *event);
-
 signals:
     void console(const QString &message) const;
-
-public slots:
 
 };
 
